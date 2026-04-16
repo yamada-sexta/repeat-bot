@@ -5,6 +5,8 @@ use std::sync::Mutex;
 pub struct PriorLink {
     pub author_id: u64,
     pub author_name: String,
+    pub message_id: u64,
+    pub channel_id: u64,
     pub timestamp: Option<i64>,
 }
 
@@ -49,7 +51,7 @@ impl Database {
     ) -> rusqlite::Result<Option<PriorLink>> {
         let conn = self.conn.lock().unwrap();
         let mut stmt = conn.prepare_cached(
-            "SELECT author_id, author_name, created_at
+            "SELECT author_id, author_name, message_id, channel_id, created_at
              FROM links
              WHERE guild_id = ?1 AND channel_id = ?2 AND url = ?3
              ORDER BY created_at ASC
@@ -60,10 +62,14 @@ impl Database {
 
         if let Some(row) = rows.next()? {
             let author_id_raw: i64 = row.get(0)?;
+            let message_id_raw: i64 = row.get(2)?;
+            let channel_id_raw: i64 = row.get(3)?;
             Ok(Some(PriorLink {
                 author_id: author_id_raw as u64,
                 author_name: row.get(1)?,
-                timestamp: row.get(2)?,
+                message_id: message_id_raw as u64,
+                channel_id: channel_id_raw as u64,
+                timestamp: row.get(4)?,
             }))
         } else {
             Ok(None)

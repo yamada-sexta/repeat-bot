@@ -73,12 +73,17 @@ impl EventHandler for Handler {
 
                     let timestamp_display = prior
                         .timestamp
-                        .map(|ts| format!(" on <t:{}:R>", ts))
+                        .map(|ts| format!(" <t:{}:R>", ts))
                         .unwrap_or_default();
 
+                    let message_link = format!(
+                        "https://discord.com/channels/{}/{}/{}",
+                        guild_id, prior.channel_id, prior.message_id
+                    );
+
                     duplicates.push(format!(
-                        "🔗 <{}>\n↳ Previously sent by **{}**{}",
-                        normalized_url, prior.author_name, timestamp_display
+                        "🔗 <{}>\n↳ Previously sent by **{}**{} — [jump to message]({})",
+                        normalized_url, prior.author_name, timestamp_display, message_link
                     ));
                 }
                 Ok(None) => {
