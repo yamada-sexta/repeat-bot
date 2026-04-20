@@ -191,7 +191,13 @@ fn rewrite_path_for_platform(url: &mut Url) {
         "x.com" => {
             // Twitter: /user/status/<id> — strip everything after
             // Also handle /i/status/<id>
-            // Keep path as-is (the query params are handled by JUNK_PARAMS)
+            let path = url.path().to_string();
+            let mut segments: Vec<&str> = path.trim_start_matches('/').split('/').collect();
+            if segments.len() >= 3 && segments[1] == "status" {
+                segments[0] = "i";
+                let new_path = segments.join("/");
+                url.set_path(&new_path);
+            }
         }
         _ => {}
     }
@@ -242,7 +248,7 @@ mod tests {
         assert_eq!(urls.len(), 1);
         assert_eq!(
             urls[0],
-            "https://x.com/manmilk2/status/2044611743083569224"
+            "https://x.com/i/status/2044611743083569224"
         );
     }
 
@@ -259,6 +265,7 @@ mod tests {
         );
         assert_eq!(a, b);
         assert_eq!(b, c);
+        assert_eq!(a[0], "https://x.com/i/status/123");
     }
 
     #[test]
@@ -336,6 +343,7 @@ mod tests {
             "look at https://x.com/user/status/111?s=12 and also https://youtu.be/abc",
         );
         assert_eq!(urls.len(), 2);
+        assert_eq!(urls[0], "https://x.com/i/status/111");
     }
 
     #[test]
