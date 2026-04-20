@@ -195,6 +195,7 @@ fn rewrite_path_for_platform(url: &mut Url) {
             let mut segments: Vec<&str> = path.trim_start_matches('/').split('/').collect();
             if segments.len() >= 3 && segments[1] == "status" {
                 segments[0] = "i";
+                segments.truncate(3);
                 let new_path = segments.join("/");
                 url.set_path(&new_path);
             }
@@ -249,6 +250,18 @@ mod tests {
         assert_eq!(
             urls[0],
             "https://x.com/i/status/2044611743083569224"
+        );
+    }
+
+    #[test]
+    fn twitter_extra_path_segments_stripped() {
+        let urls = extract_and_normalize_urls(
+            "https://x.com/shitpost_2077/status/2045517715327401986/video/1?s=12",
+        );
+        assert_eq!(urls.len(), 1);
+        assert_eq!(
+            urls[0],
+            "https://x.com/i/status/2045517715327401986"
         );
     }
 
