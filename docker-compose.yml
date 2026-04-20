@@ -2,8 +2,9 @@ services:
   repeat-bot:
     build: .
     restart: unless-stopped
+    # Use host network
+    network_mode: host
     env_file:
       - .env
     volumes:
       - ./data:/data
-
